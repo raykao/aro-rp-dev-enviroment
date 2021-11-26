@@ -61,3 +61,31 @@ AZURE_RP_CLIENT_ID="$(az ad app create \
   --query appId \
   -o tsv)"
 az ad sp create --id "$AZURE_RP_CLIENT_ID" >/dev/null
+
+## Create SP for "Fake" Azure Gateway Identity
+AZURE_GATEWAY_CLIENT_SECRET="$(uuidgen)"
+AZURE_GATEWAY_CLIENT_ID="$(az ad app create \
+  --display-name aro-v4-gateway-shared \
+  --end-date '2299-12-31T11:59:59+00:00' \
+  --identifier-uris "https://$(uuidgen)/" \
+  --key-type password \
+  --password "$AZURE_GATEWAY_CLIENT_SECRET" \
+  --query appId \
+  -o tsv)"
+az ad sp create --id "$AZURE_GATEWAY_CLIENT_ID" >/dev/null
+
+## Create SP for E2E tooling
+#Later this application will be granted:
+#
+# Contributor on your subscription.
+# User Access Administrator on your subscription.
+AZURE_CLIENT_SECRET="$(uuidgen)"
+AZURE_CLIENT_ID="$(az ad app create \
+  --display-name aro-v4-tooling-shared \
+  --end-date '2299-12-31T11:59:59+00:00' \
+  --identifier-uris "https://$(uuidgen)/" \
+  --key-type password \
+  --password "$AZURE_CLIENT_SECRET" \
+  --query appId \
+  -o tsv)"
+az ad sp create --id "$AZURE_CLIENT_ID" >/dev/null
